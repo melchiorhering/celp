@@ -31,6 +31,21 @@ b_p_s = DataFrame(BUSINESSES['westlake'])
 b_p_s = b_p_s.set_index('business_id')
 # Maak nieuwe df met belangrijke columnen
 df = pd.DataFrame(b_p_s,columns=['categories','attributes', 'review_count', 'stars'])
-print(df[:10])
+# Filter op aantal reviews
+s = df[df['review_count']>20]
+# Filter op rating
+b = s[s['stars']>4.0]
+# t = x["categories"]
+
+
+# Gebruikers dataframe
+users = DataFrame(USERS['westlake'])
+print(users[:10])
+
+# Review dataframe
+user_reviews = DataFrame(REVIEWS['westlake'])
+print(user_reviews[:10])
+
+
 
 
