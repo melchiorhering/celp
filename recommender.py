@@ -112,8 +112,8 @@ def get_rating(ratings, userId, businessId):
     """Given a userId and businessId, this function returns the corresponding rating.
        Should return NaN if no rating exists."""
     rating = ratings.loc[(ratings['user_id'] == userId) & (ratings['business_id'] == businessId)]
-
-    print(rating)
+    if rating.empty is True:
+        return 0.0
     return rating['stars'].item()
 
 def pivot_data(matrix):
@@ -121,10 +121,12 @@ def pivot_data(matrix):
     business_ids = matrix['business_id'].unique()
     user_ids = matrix['user_id'].unique()
     pivot_data = DataFrame(matrix, index=business_ids, columns=user_ids)
-
+    print(pivot_data)
     for u_id in user_ids:
         for m_id in business_ids:
-            pivot_data[m_id, u_id] = get_rating(matrix, u_id, m_id) 
+            rating = get_rating(matrix, u_id, m_id)
+            print(rating)
+            pivot_data[m_id, u_id] = rating 
     return pivot_data
 
 
@@ -136,8 +138,8 @@ def pivot_data(matrix):
 #     # create empty data frame
 #     pivot_data = pd.DataFrame(ratings, columns=business_ids, index=user_ids, dtype=float)
 #     # use the function get_rating to fill the matrix
-#      for u_id in userIds:
-#         for m_id in movieIds:
+#     for u_id in user_ids:
+#         for m_id in buiness_ids:
 #             pivot_data.loc[m_id, u_id] = get_rating(ratings, u_id, m_id) 
 #     return pivot_data
 
@@ -176,8 +178,9 @@ df_similarity_categories = create_similarity_matrix_categories(df_utility_catego
 
 # Filter user_reviews op business_id, review_id, stars en useful
 user_reviews_filtered = DataFrame(user_reviews, columns=['business_id', 'user_id','stars', 'useful'])
-print(user_reviews_filtered.head())
+# print(user_reviews_filtered)
+
+# utility_matrix = user_reviews_filtered.pivot_table(values='stars', index='business_id', columns='user_id', fill_value= 0.0)
+# print(utility_matrix)
 
 pivot_data(user_reviews_filtered)
-
-
