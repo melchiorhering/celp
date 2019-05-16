@@ -32,36 +32,43 @@ def recommend(user_id=None, business_id=None, city=None, n=10):
     if user_id is not None:
         if city is not None:
             
+            #Item based
             reviews = DataFrame(REVIEWS[city])
             df_reviews = reviews[['user_id', 'business_id', 'stars']]
-            df_stars_training, df_stars_test = split_data(df_reviews, d=0.9)
+            predictions_item_based = prediction_item_based(df_reviews)
+            mse_item_based = mse(predictions_item_based)
 
-            df_utility_stars = pivot_ratings(df_stars_training)
+            print(mse_item_based)
 
-            df_similarity_stars = create_similarity_matrix_cosine(df_utility_stars)
-
-            predictions = predict_ratings(df_similarity_stars, df_utility_stars, df_stars_test[['user_id', 'business_id', 'stars']])
-
-
+            #Content based
             business = DataFrame(BUSINESSES[city])
             df_business = business[['business_id', 'name', 'categories']]
-
-            df_genres = extract_genres(df_business)
-
-            df_utility_genres = pivot_genres(df_genres)
+            predictions_content_based = prediction_content_based(df_business, df_reviews)
+            mse_content_based = mse(predictions_content_based)
             
-            df_similarity_genres = create_similarity_matrix_categories(df_utility_genres)
+            print(mse_content_based)
             
-            predicted = predict_ratings(df_similarity_genres, df_utility_stars, df_stars_test[['user_id', 'business_id', 'stars']])
-
-            mse_item_based = mse(predictions)
-            mse_content_based = mse(predicted)
-            print(mse_item_based, mse_content_based)
 
     if not city:
         city = random.choice(CITIES)
         # print(random.sample(BUSINESSES[city], n))
     return random.sample(BUSINESSES[city], n)
+
+def prediction_item_based(df):
+    df_stars_training, df_stars_test = split_data(df, d=0.9)
+    df_utility_stars = pivot_ratings(df_stars_training)
+    df_similarity_stars = create_similarity_matrix_cosine(df_utility_stars)
+    return predict_ratings(df_similarity_stars, df_utility_stars, df_stars_test[['user_id', 'business_id', 'stars']])
+
+def prediction_content_based(df_business, df_reviews):
+    df_stars_training, df_stars_test = split_data(df_reviews, d=0.9)
+    df_utility_stars = pivot_ratings(df_stars_training)
+
+    df_genres = extract_genres(df_business)
+    df_utility_genres = pivot_genres(df_genres)
+    df_similarity_genres = create_similarity_matrix_categories(df_utility_genres)
+    return predict_ratings(df_similarity_genres, df_utility_stars, df_stars_test[['user_id', 'business_id', 'stars']])
+
 
 
 # df_users = DataFrame(USERS[city])
