@@ -254,3 +254,18 @@ def extract_checkin(movies):
     df_stack_genres['business_id'] = stack_genres.index.droplevel(1)
     df_stack_genres.columns = ['date', 'business_id']
     return df_stack_genres.reset_index()[['business_id', 'date']]
+
+def prediction_item_based(df):
+    df_stars_training, df_stars_test = split_data(df, d=0.9)
+    df_utility_stars = pivot_ratings(df_stars_training)
+    df_similarity_stars = create_similarity_matrix_cosine(df_utility_stars)
+    return predict_ratings(df_similarity_stars, df_utility_stars, df_stars_test[['user_id', 'business_id', 'stars']])
+
+def prediction_content_based(df_business, df_reviews):
+    df_stars_training, df_stars_test = split_data(df_reviews, d=0.9)
+    df_utility_stars = pivot_ratings(df_stars_training)
+
+    df_genres = extract_genres(df_business)
+    df_utility_genres = pivot_genres(df_genres)
+    df_similarity_genres = create_similarity_matrix_categories(df_utility_genres)
+    return predict_ratings(df_similarity_genres, df_utility_stars, df_stars_test[['user_id', 'business_id', 'stars']])
