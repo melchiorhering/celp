@@ -226,3 +226,31 @@ def mse(predicted_ratings):
     """
     diff = predicted_ratings['stars'] - predicted_ratings['predicted stars']
     return (diff**2).mean()
+
+def extract_elite(movies):
+    """Create an unfolded genre dataframe. Unpacks genres seprated by a '|' into seperate rows.
+
+    Arguments:
+    movies -- a dataFrame containing at least the columns 'movieId' and 'genres' 
+              where genres are seprated by '|'
+    """
+    genres_m = movies.apply(lambda row: pd.Series([row['user_id']] + row['elite'].lower().split(",")), axis=1)
+    stack_genres = genres_m.set_index(0).stack()
+    df_stack_genres = stack_genres.to_frame()
+    df_stack_genres['user_id'] = stack_genres.index.droplevel(1)
+    df_stack_genres.columns = ['elite', 'user_id']
+    return df_stack_genres.reset_index()[['user_id', 'elite']]
+
+def extract_checkin(movies):
+    """Create an unfolded genre dataframe. Unpacks genres seprated by a '|' into seperate rows.
+
+    Arguments:
+    movies -- a dataFrame containing at least the columns 'movieId' and 'genres' 
+              where genres are seprated by '|'
+    """
+    genres_m = movies.apply(lambda row: pd.Series([row['business_id']] + row['date'].lower().split(",")), axis=1)
+    stack_genres = genres_m.set_index(0).stack()
+    df_stack_genres = stack_genres.to_frame()
+    df_stack_genres['business_id'] = stack_genres.index.droplevel(1)
+    df_stack_genres.columns = ['date', 'business_id']
+    return df_stack_genres.reset_index()[['business_id', 'date']]
