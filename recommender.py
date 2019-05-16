@@ -32,11 +32,17 @@ def recommend(user_id=None, business_id=None, city=None, n=10):
     if user_id is not None:
         if city is not None:
             
+            a = DataFrame(BUSINESSES[city])
+            b = a[a['business_id'] == business_id]
+            rating = b['stars'].values[0]
+
             #Item based
             reviews = DataFrame(REVIEWS[city])
             df_reviews = reviews[['user_id', 'business_id', 'stars']]
             predictions_item_based = prediction_item_based(df_reviews)
-            mse_item_based = mse(predictions_item_based)
+
+            # Hier filter je op predictions groter of gelijk aan de rating van het bedrijf
+            mse_item_based = mse(predictions_item_based[predictions_item_based['predicted stars'] >= rating])
 
             print(mse_item_based)
 
@@ -44,7 +50,9 @@ def recommend(user_id=None, business_id=None, city=None, n=10):
             business = DataFrame(BUSINESSES[city])
             df_business = business[['business_id', 'name', 'categories']]
             predictions_content_based = prediction_content_based(df_business, df_reviews)
-            mse_content_based = mse(predictions_content_based)
+
+            # Hier filter je op predictions groter of gelijk aan de rating van het bedrijf
+            mse_content_based = mse(predictions_content_based[predictions_content_based['predicted stars'] >= rating])
             
             print(mse_content_based)
             
@@ -75,9 +83,7 @@ def prediction_content_based(df_business, df_reviews):
 # df_most_rated = df_users[df_users['review_count'] > 10]
 # most_rated_users = [i for i in df_most_rated['user_id']] 
 
-# a = DataFrame(BUSINESSES[city])
-# b = a[a['business_id'] == business_id]
-# rating = b['stars'].values[0]
+
 
 # c = a[a['stars'] >= rating]
 # d = c[c['review_count'] > 10] 
