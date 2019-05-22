@@ -129,15 +129,14 @@ def recommend(user_id=None, business_id=None, city=None, n=10):
             elif mse_content_based_categories == minimale_mse:
                 return_samples(predictions_content_based_categories2, city, business_id)
                 
-                 
     if not city:
         city = random.choice(CITIES)
     return random.sample(BUSINESSES[city], n)
 
-def return_samples(predictions, city, business_id):
-    predictionz = predictions[predictions['business_id'] != business_id]
-    top_10 = predictionz.sort_values(by=['predicted stars'], ascending=False)[:10]
+def return_samples(prediction, city, business_id):
+    predictions = prediction[prediction['business_id'] != business_id]
+    top_10 = predictions.sort_values(by=['predicted stars'], ascending=False)[:10]
     top_10_samples = [get_business(city, i) for i in top_10['business_id']]
-    print(top_10)
+    # print(top_10)
     # print(len(predictions))
     return top_10_samples   
